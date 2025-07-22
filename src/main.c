@@ -23,8 +23,6 @@ int main() {
     gladLoadGL();
     glfwSwapInterval(1);
     while (!glfwWindowShouldClose(window)) {
-
-
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
