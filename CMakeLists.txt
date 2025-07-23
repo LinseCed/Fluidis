@@ -7,14 +7,14 @@ include_directories(include)
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 
+file(GLOB_RECURSE SOURCES "src/*.c")
+
 add_executable(3DEngine
-    src/main.c
-    src/glad.c
-    src/render/shader.c
-    src/render/mesh.c
+    ${SOURCES}
 )
 
 target_link_libraries(3DEngine
     glfw
     OpenGL::GL
+    cjson
 )
