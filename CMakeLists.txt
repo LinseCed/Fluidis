@@ -10,6 +10,8 @@ find_package(glfw3 REQUIRED)
 add_executable(3DEngine
     src/main.c
     src/glad.c
+    src/render/shader.c
+    src/render/mesh.c
 )
 
 target_link_libraries(3DEngine
