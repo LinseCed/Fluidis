@@ -17,4 +17,5 @@ typedef struct {
 Mesh* mesh_create(Vertex* vertices, unsigned int vertexCount, unsigned int* indices, unsigned int indexCount);
 void mesh_destroy(Mesh* mesh);
 void mesh_draw(Mesh* mesh);
+void print(Mesh* mesh);
 #endif

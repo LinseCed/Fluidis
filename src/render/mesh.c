@@ -1,4 +1,5 @@
 #include "mesh.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <glad/glad.h>
@@ -60,3 +61,22 @@ void mesh_draw(Mesh* mesh) {
     glBindVertexArray(0);
 }
 
+void print(Mesh* mesh) {
+    if (!mesh) {
+        printf("NULL\n");
+        return;
+    }
+
+    printf("MESH:\n");
+    if (mesh->vertices && mesh->vertexCount > 0) {
+        printf("  Vertices (%u):\n", mesh->vertexCount);
+    } else {
+        printf("  No Vertives\n");
+    }
+
+    if (mesh->indices && mesh->indexCount > 0) {
+        printf("  Indices (%u):\n", mesh->indexCount);
+    } else {
+        printf("  No Indices\n");
+    }
+}

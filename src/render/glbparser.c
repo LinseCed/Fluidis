@@ -1,9 +1,11 @@
 #include "glbparser.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include "mesh.h"
 
 Model* parse_glb(char* path) {
-    Model* model = (Model*) malloc(sizeof(Model));
+    Model* model = create_model();
     FILE* file = fopen(path, "rb");
     if (!file) {
         fprintf(stderr, "Failed to open glb file: %s\n", path);
@@ -44,6 +46,8 @@ Model* parse_glb(char* path) {
     printf("Total length: %u bytes\n", header->length);
 
     size_t offset = sizeof(GlbHeader);
+    char* jsonString = NULL;
+    char* binString = NULL;
 
     while (offset + sizeof(GlbChunkHeader) <= (size_t) size) {
         GlbChunkHeader* chunk = (GlbChunkHeader*) (buffer + offset);
@@ -60,29 +64,76 @@ Model* parse_glb(char* path) {
 
         if (chunk->chunkType == 0x4E4F534A) { //JSON in binary
             printf("JSON chunk found\n");
-            cJSON* root = cJSON_Parse((const char*) chunk_data);
-            if (!root) {
-                fprintf(stderr, "Failed to parse JSON");
-                free(buffer);
-                free(model);
-
-                return NULL;
-            }
-            cJSON* meshes = cJSON_GetObjectItem(root, "meshes");
-            if (meshes && cJSON_IsArray(meshes)) {
-                int mesh_count = cJSON_GetArraySize(meshes);
-                for (int i = 0; i < mesh_count; i++) {
-                    cJSON* mesh = cJSON_GetArrayItem(meshes, i);
-                    cJSON* name = cJSON_GetObjectItem(mesh, "name");
-                    if (name && cJSON_IsString(name)) {
-                        printf("Mesh[%d]: %s\n", i, name->valuestring);
-                    }
-                }
-            }
+            jsonString = (char*) malloc(chunk->chunklength + 1);
+            memcpy(jsonString, chunk_data, chunk->chunklength);
+            jsonString[chunk->chunklength] = '\0';
+            printf("JSON CHUNK: %s\n", jsonString);
         } else if (chunk->chunkType == 0x004E4942) { //BIN in binary
             printf("BIN chunk found\n");
+            binString = (char*) malloc(chunk->chunklength);
+            memcpy(binString, chunk_data, chunk->chunklength);
         }
 
         offset += chunk->chunklength;
     }
+
+    if (!jsonString || !binString) {
+        fprintf(stderr, "Failed to read");
+        free(buffer);
+        free(model);
+        free(jsonString);
+        free(binString);
+        return NULL;
+    }
+
+    cJSON* root = cJSON_Parse(jsonString);
+    if (!root) {
+        fprintf(stderr, "Failed to parse JSON");
+        free(buffer);
+        free(model);
+        free(jsonString);
+        free(binString);
+        return NULL;
+    }
+
+    cJSON* accessors = cJSON_GetObjectItem(root, "accessors");
+    cJSON* bufferViews = cJSON_GetObjectItem(root, "bufferViews");
+
+
+    cJSON* posAccessor = cJSON_GetArrayItem(accessors, 0);
+    int posBufferViewIndex = cJSON_GetObjectItem(posAccessor, "bufferView")->valueint;
+    int posCount = cJSON_GetObjectItem(posAccessor, "count")->valueint;
+    cJSON* posBufferView = cJSON_GetArrayItem(bufferViews, posBufferViewIndex);
+    int posByteOffset = cJSON_GetObjectItem(posBufferView, "byteOffset")->valueint;
+
+    cJSON* indexAccessor = cJSON_GetArrayItem(accessors, 3);
+    int indexBufferViewIndex = cJSON_GetObjectItem(indexAccessor, "bufferView")->valueint;
+    int indexCount = cJSON_GetObjectItem(indexAccessor, "count")->valueint;
+    cJSON* indexBufferView = cJSON_GetArrayItem(bufferViews, indexBufferViewIndex);
+    int indexByteOffset = cJSON_GetObjectItem(indexBufferView, "byteOffset")->valueint;
+
+    const float* posDataLocation = (const float*) (binString + posByteOffset);
+
+    Vertex vertices[posCount];
+    for (size_t i = 0; i < posCount; i++) {
+        for (size_t j = 0; j < 3; j++) {
+            vertices[i].position[j] = posDataLocation[i + j];
+        }
+    }
+
+    const unsigned short* indexDataLocation = (const unsigned short*) (binString + indexByteOffset);
+
+    unsigned int indices[indexCount];
+    for (size_t i = 0; i < indexCount; i++) {
+        indices[i] = indexDataLocation[i];
+    }
+
+    Mesh* mesh = mesh_create(vertices, posCount, indices, indexCount);
+
+    add_mesh(model, mesh);
+
+    free(buffer);
+    free(jsonString);
+    free(binString);
+    return model;
 }
