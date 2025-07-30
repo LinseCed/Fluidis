@@ -17,4 +17,5 @@ target_link_libraries(3DEngine
     glfw
     OpenGL::GL
     cjson
+    m
 )

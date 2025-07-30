@@ -15,7 +15,7 @@ void camera_update_vectors(Camera* camera) {
     glm_normalize(camera->up);
 }
 
-Camera* camera_create(vec3 position, vec3 up) {
+Camera* create_camera(vec3 position, vec3 up) {
     Camera* camera = malloc(sizeof(Camera));
     glm_vec3_copy(position, camera->position);
     glm_vec3_copy(up, camera->worldUp);
@@ -61,4 +61,21 @@ void camera_process_input(Camera* camera, enum CameraMovement dir, float delta) 
 void camera_get_projection_matrix(Camera* camera, float aspect, float near, float far, mat4 dest) {
     float fov = glm_rad(camera->zoom);
     glm_perspective(fov, aspect, near, far, dest);
+}
+
+void camera_process_mouse(Camera* camera, float xoffset, float yoffset) {
+    xoffset *= camera->mouseSensitivity;
+    yoffset *= camera->mouseSensitivity;
+
+    camera->yaw += xoffset;
+    camera->pitch += yoffset;
+
+    if (camera->pitch > 89.0f) {
+        camera->pitch = 89.0f;
+    }
+    if (camera->pitch < -89.0f) {
+        camera->pitch = -89.0f;
+    }
+
+    camera_update_vectors(camera);
 }
