@@ -1,0 +1,34 @@
+# Build directories
+build/
+bin/
+lib/
+
+# Object files
+*.o
+*.obj
+
+# Executables
+*.exe
+*.out
+3DEngine
+
+# CMake files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# IDE files
+.vscode/
+.vs/
+*.vcxproj*
+*.sln
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+*~

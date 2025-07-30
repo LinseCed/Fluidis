@@ -60,7 +60,7 @@ int main() {
     // Create a test cube instead of loading from file
     Mesh* cube_mesh = create_test_cube();
 
-    Shader shader = shader_create("../rsc/shader/shader.vert", "../rsc/shader/shader.frag");
+    Shader shader = shader_create("rsc/shader/shader.vert", "rsc/shader/shader.frag");
 
     while (!glfwWindowShouldClose(window)) {
         // Calculate delta time
