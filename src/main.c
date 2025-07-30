@@ -6,9 +6,9 @@
 #include "render/shader.h"
 #include "render/camera.h"
 
-#define SCREEN_HEIGHT   600
-#define SCREEN_WIDTH    800
-#define ASPECT_RATIO    SCREEN_WIDTH / SCREEN_HEIGHT
+const int SCREEN_HEIGHT = 600;
+const int SCREEN_WIDTH = 800;
+float aspect_ratio = (float) SCREEN_WIDTH / SCREEN_HEIGHT;
 
 float delta = 0.0f;
 float lastFrame = 0.0f;
@@ -58,6 +58,10 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
+    if (height == 0) {
+        height = 1;
+    }
+    aspect_ratio = (float) width / (float) height;
 }
 
 int main() {
@@ -109,7 +113,7 @@ int main() {
         glCullFace(GL_BACK);
         shader_use(&shader);
 
-        camera_get_projection_matrix(camera, ASPECT_RATIO, 0.1f, 100.0f, projection);
+        camera_get_projection_matrix(camera, aspect_ratio, 0.1f, 100.0f, projection);
         shader_set_uniform_mat4(&shader, "projection", (const float*) projection);
 
         camera_get_view_matrix(camera, view);
