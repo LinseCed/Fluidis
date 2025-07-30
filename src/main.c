@@ -105,7 +105,8 @@ int main() {
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
         shader_use(&shader);
 
         camera_get_projection_matrix(camera, ASPECT_RATIO, 0.1f, 100.0f, projection);

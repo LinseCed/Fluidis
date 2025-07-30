@@ -21,12 +21,6 @@ Model* parse_glb(char* path) {
     fread(buffer, 1, size, file);
     fclose(file);
 
-    for (size_t i = 0; i < size; i++) {
-        unsigned char c = buffer[i];
-        printf("%02X", c);
-        if ((i + 1) % 16 == 0) printf("\n");
-    }
-
     if (size < sizeof(GlbHeader)) {
         fprintf(stderr, "File is to small to be in GLB Format\n");
         free(buffer);
@@ -41,9 +35,6 @@ Model* parse_glb(char* path) {
         free(model);
         return NULL;
     }
-
-    printf("GLB Version: %u\n", header->version);
-    printf("Total length: %u bytes\n", header->length);
 
     size_t offset = sizeof(GlbHeader);
     char* jsonString = NULL;
@@ -63,13 +54,10 @@ Model* parse_glb(char* path) {
         unsigned char* chunk_data = buffer + offset;
 
         if (chunk->chunkType == 0x4E4F534A) { //JSON in binary
-            printf("JSON chunk found\n");
             jsonString = (char*) malloc(chunk->chunklength + 1);
             memcpy(jsonString, chunk_data, chunk->chunklength);
             jsonString[chunk->chunklength] = '\0';
-            printf("JSON CHUNK: %s\n", jsonString);
         } else if (chunk->chunkType == 0x004E4942) { //BIN in binary
-            printf("BIN chunk found\n");
             binString = (char*) malloc(chunk->chunklength);
             memcpy(binString, chunk_data, chunk->chunklength);
         }
@@ -117,7 +105,7 @@ Model* parse_glb(char* path) {
     Vertex vertices[posCount];
     for (size_t i = 0; i < posCount; i++) {
         for (size_t j = 0; j < 3; j++) {
-            vertices[i].position[j] = posDataLocation[i + j];
+            vertices[i].position[j] = posDataLocation[i * 3 + j];
         }
     }
 
@@ -137,3 +125,4 @@ Model* parse_glb(char* path) {
     free(binString);
     return model;
 }
+
