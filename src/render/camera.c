@@ -1,4 +1,6 @@
 #include "camera.h"
+#include <stdlib.h>
+#include <stdbool.h>
 
 void camera_update_vectors(Camera* camera) {
     vec3 front;
@@ -61,4 +63,21 @@ void camera_process_input(Camera* camera, enum CameraMovement dir, float delta) 
 void camera_get_projection_matrix(Camera* camera, float aspect, float near, float far, mat4 dest) {
     float fov = glm_rad(camera->zoom);
     glm_perspective(fov, aspect, near, far, dest);
+}
+
+void camera_process_mouse_movement(Camera* camera, float xoffset, float yoffset, bool constrainPitch) {
+    xoffset *= camera->mouseSensitivity;
+    yoffset *= camera->mouseSensitivity;
+    
+    camera->yaw += xoffset;
+    camera->pitch += yoffset;
+    
+    if (constrainPitch) {
+        if (camera->pitch > 89.0f)
+            camera->pitch = 89.0f;
+        if (camera->pitch < -89.0f)
+            camera->pitch = -89.0f;
+    }
+    
+    camera_update_vectors(camera);
 }

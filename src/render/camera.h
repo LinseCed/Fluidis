@@ -2,6 +2,7 @@
 #define CAMERA_H
 
 #include <cglm/cglm.h>
+#include <stdbool.h>
 
 enum CameraMovement {
     FORWARD,
@@ -31,9 +32,10 @@ typedef struct {
     float zoom;
 } Camera;
 
-Camera create_camera(vec3 position, vec3 up);
+Camera* camera_create(vec3 position, vec3 up);
 void camera_update_vectors(Camera* camera);
 void camera_get_view_matrix(Camera* camera, mat4 dest);
 void camera_process_input(Camera* camera, enum CameraMovement dir, float delta);
+void camera_process_mouse_movement(Camera* camera, float xoffset, float yoffset, bool constrainPitch);
 void camera_get_projection_matrix(Camera* camera, float aspect, float near, float far, mat4 dest);
 #endif
