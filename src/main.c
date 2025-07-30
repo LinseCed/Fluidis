@@ -27,16 +27,23 @@ int main() {
     gladLoadGL();
     glfwSwapInterval(1);
 
-
     Model* model = parse_glb("../test/models/cube/Cube.glb");
 
+    Shader shader = shader_create("../rsc/shader/shader.vert", "../rsc/shader/shader.frag");
+
     while (!glfwWindowShouldClose(window)) {
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        shader_use(&shader);
+        mesh_draw(model->meshes[0]);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
+    shader_destroy(&shader);
     glfwDestroyWindow(window);
     glfwTerminate();
+
     return 0;
 }
 

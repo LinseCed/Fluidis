@@ -43,7 +43,7 @@ static void check_compile_errors(unsigned int shader, const char* type) {
     }
 }
 
-Shader create_shader(const char* vertexPath, const char* fragmentPath) {
+Shader shader_create(const char* vertexPath, const char* fragmentPath) {
     Shader shader = {0};
 
     char* vertexCode = read_file(vertexPath);
