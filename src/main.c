@@ -5,64 +5,11 @@
 #include "render/glbparser.h"
 #include "render/shader.h"
 #include "render/camera.h"
-
-const int SCREEN_HEIGHT = 600;
-const int SCREEN_WIDTH = 800;
-float aspect_ratio = (float) SCREEN_WIDTH / SCREEN_HEIGHT;
+#include "render/input.h"
+#include "render/window.h"
 
 float delta = 0.0f;
 float lastFrame = 0.0f;
-float lastX = SCREEN_WIDTH / 2.0f;
-float lastY = SCREEN_HEIGHT / 2.0f;
-bool firstMouse = true;
-
-void processInput(GLFWwindow* window, Camera* camera, float delta) {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-    }
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        camera_process_input(camera, FORWARD, delta);
-    }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        camera_process_input(camera, LEFT, delta);
-    }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        camera_process_input(camera, BACKWARD, delta);
-    }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        camera_process_input(camera, RIGHT, delta);
-    }
-}
-
-void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
-    float xpos = (float) xposIn;
-    float ypos = (float) yposIn;
-
-    if (firstMouse) {
-        lastX = xposIn;
-        lastY = yposIn;
-        firstMouse = false;
-    }
-
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos;
-
-    lastX = xpos;
-    lastY = ypos;
-
-    Camera* camera = (Camera*) glfwGetWindowUserPointer(window);
-    if (camera != NULL) {
-        camera_process_mouse(camera, xoffset, yoffset);
-    }
-}
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height);
-    if (height == 0) {
-        height = 1;
-    }
-    aspect_ratio = (float) width / (float) height;
-}
 
 int main() {
     if (!glfwInit()) {
@@ -74,7 +21,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
-    GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "FLUIDIS", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(INITIAL_SCREEN_WIDTH, INITIAL_SCREEN_HEIGHT, "FLUIDIS", NULL, NULL);
     if(!window) {
         printf("Error initalizing Window");
         glfwTerminate();
@@ -105,7 +52,7 @@ int main() {
         delta = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        processInput(window, camera, delta);
+        process_input(window, camera, delta);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
